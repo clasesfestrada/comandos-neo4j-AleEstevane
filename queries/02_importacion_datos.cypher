@@ -20,6 +20,7 @@ CREATE (:Materia {
   area: row.area
 });
 
+
 LOAD CSV WITH HEADERS FROM
 'https://raw.githubusercontent.com/clasesfestrada/comandos-neo4j-AleEstevane/refs/heads/main/data/profesores.csv'
 AS row
@@ -35,18 +36,30 @@ LOAD CSV WITH HEADERS FROM
 'https://raw.githubusercontent.com/clasesfestrada/comandos-neo4j-AleEstevane/refs/heads/main/data/imparticiones.csv'
 AS row
 
-CREATE (:Imparticiones {
-  profesor_id: row.profesor_id,
-  materia_id: row.materia_id
-});
+MATCH (p:Profesor {id: row.profesor_id})
+MATCH (m:Materia {id: row.materia_id})
+
+CREATE (p)-[:IMPARTE]->(m);
+
 
 
 LOAD CSV WITH HEADERS FROM
 'https://raw.githubusercontent.com/clasesfestrada/comandos-neo4j-AleEstevane/refs/heads/main/data/inscripciones.csv'
 AS row
 
-CREATE (:Inscripciones {
-  estudiante_id: row.estudiante_id,
-  materia_id: row.materia_id,
-  calificacion: row.calificacion
-});
+MATCH (e:Estudiante {id: row.estudiante_id})
+MATCH (m:Materia {id: row.materia_id})
+
+CREATE (e)-[:INSCRITO_EN {
+  calificacion: toInteger(row.calificacion)
+}]->(m);
+
+
+LOAD CSV WITH HEADERS FROM
+'https://raw.githubusercontent.com/clasesfestrada/comandos-neo4j-AleEstevane/refs/heads/main/data/amistades.csv'
+AS row
+
+MATCH (e1:Estudiante {id: row.estudiante_origen})
+MATCH (e2:Estudiante {id: row.estudiante_destino})
+
+CREATE (e1)-[:AMIGO_DE]->(e2);
